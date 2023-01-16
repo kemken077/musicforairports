@@ -80,4 +80,16 @@ function playSample(instrument, note) {
     });
 }
 
-setTimeout(() => { playSample('Grand Piano', 'F4') }, 1000);
+const EVENTS = {
+  click: 'click',
+};
+
+document.getElementById('play').addEventListener(EVENTS.click, () => {
+  setTimeout(() => { playSample('Grand Piano', 'F4') }, 0);
+  setTimeout(() => { playSample('Grand Piano', 'Ab4') }, 1000);
+  setTimeout(() => { playSample('Grand Piano', 'C5') }, 2000);
+  setTimeout(() => { playSample('Grand Piano', 'Db5') }, 3000);
+  setTimeout(() => { playSample('Grand Piano', 'Eb5') }, 4000);
+  setTimeout(() => { playSample('Grand Piano', 'F5') }, 5000);
+  setTimeout(() => { playSample('Grand Piano', 'Ab5') }, 6000);
+});
