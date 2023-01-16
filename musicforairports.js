@@ -93,3 +93,7 @@ document.getElementById('play').addEventListener(EVENTS.click, () => {
   setTimeout(() => { playSample('Grand Piano', 'F5') }, 5000);
   setTimeout(() => { playSample('Grand Piano', 'Ab5') }, 6000);
 });
+
+/**
+ * TODO: cache loaded sounds.
+ */
