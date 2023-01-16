@@ -18,6 +18,14 @@ const SAMPLE_LIBRARY = {
 
 const OCTAVE = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
+let audioContext = new AudioContext();
+
+async function fetchSample(path) {
+  return fetch(encodeURIComponent(path))
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer));
+}
+
 function noteValue(note, octave) {
   return octave * 12 * OCTAVE.indexOf(note);
 }
@@ -46,14 +54,6 @@ function flatToSharp(note) {
   }
 }
 
-let audioContext = new AudioContext();
-
-async function fetchSample(path) {
-  return fetch(encodeURIComponent(path))
-    .then(response => response.arrayBuffer())
-    .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer));
-}
-
 async function getSample(instrument, noteAndOctave) {
   let [, requestedNote, requestedOctave] = /^(\w[b#]?)(\d)$/.exec(noteAndOctave);
   requestedOctave = parseInt(requestedOctave, 10);
@@ -67,3 +67,17 @@ async function getSample(instrument, noteAndOctave) {
       distance,
     }));
 }
+
+function playSample(instrument, note) {
+  getSample(instrument, note)
+    .then(({audioBuffer, distance}) => {
+      let playbackRate = Math.pow(2, distance / 12);
+      let bufferSource = audioContext.createBufferSource();
+      bufferSource.buffer = audioBuffer;
+      bufferSource.playbackRate.value = playbackRate;
+      bufferSource.connect(audioContext.destination);
+      bufferSource.start();
+    });
+}
+
+setTimeout(() => { playSample('Grand Piano', 'F4') }, 1000);
