@@ -1,4 +1,4 @@
-const DIRECTORY = './samples/grand-piano/piano'
+const DIRECTORY = '/samples/grand-piano/piano'
 const SAMPLE_LIBRARY = {
   'Grand Piano': [
     { note: 'A', octave: 4, file: `${DIRECTORY}-a4.wav` },
@@ -27,7 +27,7 @@ async function fetchSample(path) {
 }
 
 function noteValue(note, octave) {
-  return octave * 12 * OCTAVE.indexOf(note);
+  return octave * 12 + OCTAVE.indexOf(note);
 }
 
 function getNoteDistance(note1, octave1, note2, octave2) {
@@ -55,45 +55,41 @@ function flatToSharp(note) {
 }
 
 async function getSample(instrument, noteAndOctave) {
-  let [, requestedNote, requestedOctave] = /^(\w[b#]?)(\d)$/.exec(noteAndOctave);
+  let [, requestedNote, requestedOctave] = /^(\w[b\#]?)(\d)$/.exec(noteAndOctave);
   requestedOctave = parseInt(requestedOctave, 10);
   requestedNote = flatToSharp(requestedNote);
   let sampleBank = SAMPLE_LIBRARY[instrument];
   let sample = getNearestSample(sampleBank, requestedNote, requestedOctave);
   let distance = getNoteDistance(requestedNote, requestedOctave, sample.note, sample.octave);
-  return fetchSample(sample.file)
-    .then(audioBuffer => ({
-      audioBuffer,
-      distance,
-    }));
+  return fetchSample(sample.file).then(audioBuffer => ({
+    audioBuffer: audioBuffer,
+    distance: distance,
+  }));
 }
 
 function playSample(instrument, note) {
-  getSample(instrument, note)
-    .then(({audioBuffer, distance}) => {
-      let playbackRate = Math.pow(2, distance / 12);
-      let bufferSource = audioContext.createBufferSource();
-      bufferSource.buffer = audioBuffer;
-      bufferSource.playbackRate.value = playbackRate;
-      bufferSource.connect(audioContext.destination);
-      bufferSource.start();
-    });
+  getSample(instrument, note).then(({audioBuffer, distance}) => {
+    let playbackRate = Math.pow(2, distance / 12);
+    let bufferSource = audioContext.createBufferSource();
+    bufferSource.buffer = audioBuffer;
+    bufferSource.playbackRate.value = playbackRate;
+    bufferSource.connect(audioContext.destination);
+    bufferSource.start();
+  });
 }
 
 const EVENTS = {
   click: 'click',
 };
 
+// Temporary test code
 document.getElementById('play').addEventListener(EVENTS.click, () => {
-  setTimeout(() => { playSample('Grand Piano', 'F4') }, 0);
-  setTimeout(() => { playSample('Grand Piano', 'Ab4') }, 1000);
-  setTimeout(() => { playSample('Grand Piano', 'C5') }, 2000);
-  setTimeout(() => { playSample('Grand Piano', 'Db5') }, 3000);
-  setTimeout(() => { playSample('Grand Piano', 'Eb5') }, 4000);
-  setTimeout(() => { playSample('Grand Piano', 'F5') }, 5000);
-  setTimeout(() => { playSample('Grand Piano', 'Ab5') }, 6000);
+  setTimeout(() => { playSample('Grand Piano', 'F4') }, 1000);
+  setTimeout(() => { playSample('Grand Piano', 'Ab4') }, 2000);
+  setTimeout(() => { playSample('Grand Piano', 'C5') }, 3000);
+  setTimeout(() => { playSample('Grand Piano', 'Db5') }, 4000);
+  setTimeout(() => { playSample('Grand Piano', 'Eb5') }, 5000);
+  setTimeout(() => { playSample('Grand Piano', 'F5') }, 6000);
+  setTimeout(() => { playSample('Grand Piano', 'Ab5') }, 7000);
 });
 
-/**
- * TODO: cache loaded sounds.
- */
